@@ -1,23 +1,416 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>Happy Birthday!</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      background: #fff5f8;
-      padding: 100px;
-    }
-    h1 {
-      color: #ff6699;
-      font-size: 3em;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>お誕生日おめでとう</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #12122a;
+    --night-deep: #0a0a1a;
+    --gold: #f2b544;
+    --gold-soft: #ffd98a;
+    --sakura: #ff6f91;
+    --sakura-soft: #ffb3c6;
+    --paper: #fff8ec;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--night);
+    color: var(--paper);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    overflow-x: hidden;
+    min-height: 100%;
+  }
+
+  .sky {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.06), transparent 40%),
+      radial-gradient(ellipse at 80% 30%, rgba(255,255,255,0.05), transparent 45%),
+      linear-gradient(180deg, var(--night-deep) 0%, var(--night) 55%, #1c1c3a 100%);
+    z-index: 0;
+  }
+
+  .stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: twinkle 3s ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.9; }
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 72px 24px 140px;
+    text-align: center;
+  }
+
+  .eyebrow {
+    font-family: 'Shippori Mincho', serif;
+    letter-spacing: 0.4em;
+    font-size: 12px;
+    color: var(--gold-soft);
+    opacity: 0.8;
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 700;
+    font-size: clamp(34px, 8vw, 56px);
+    line-height: 1.4;
+    margin: 0 0 8px;
+    background: linear-gradient(180deg, #fff 0%, var(--sakura-soft) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .name-slot {
+    color: var(--gold-soft);
+    -webkit-text-fill-color: var(--gold-soft);
+  }
+
+  .lede {
+    font-size: 15px;
+    line-height: 1.9;
+    color: rgba(255,248,236,0.75);
+    max-width: 420px;
+    margin: 20px auto 0;
+  }
+
+  .hint {
+    margin-top: 56px;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: rgba(255,248,236,0.4);
+  }
+
+  .lanterns {
+    position: relative;
+    height: 380px;
+    margin-top: 40px;
+  }
+
+  .lantern {
+    position: absolute;
+    width: 56px;
+    height: 74px;
+    cursor: pointer;
+    animation: float 6s ease-in-out infinite;
+    transition: transform 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .lantern:hover { transform: translateY(-6px); }
+
+  .lantern-body {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  .lantern-body::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 46px;
+    height: 60px;
+    border-radius: 50% / 40%;
+    background: radial-gradient(circle at 50% 40%, var(--gold-soft), var(--gold) 70%);
+    box-shadow: 0 0 18px rgba(242,181,68,0.6), 0 0 40px rgba(242,181,68,0.25);
+  }
+  .lantern-body::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 10px;
+    background: #8a6a2a;
+    border-radius: 2px;
+  }
+  .lantern .string {
+    position: absolute;
+    top: -34px;
+    left: 50%;
+    width: 1px;
+    height: 34px;
+    background: rgba(255,255,255,0.15);
+  }
+
+  .lantern.secret .lantern-body::before {
+    background: radial-gradient(circle at 50% 40%, var(--sakura-soft), var(--sakura) 70%);
+    box-shadow: 0 0 18px rgba(255,111,145,0.5), 0 0 40px rgba(255,111,145,0.2);
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
+  }
+
+  /* overlay */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(10,10,26,0.88);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  .overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .overlay-card {
+    max-width: 440px;
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.5s cubic-bezier(.2,.9,.3,1.3);
+  }
+  .overlay.show .overlay-card {
+    transform: scale(1);
+  }
+
+  .overlay-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--sakura-soft);
+    margin-bottom: 14px;
+  }
+
+  .overlay h2 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(28px, 7vw, 42px);
+    line-height: 1.5;
+    margin: 0 0 16px;
+    color: var(--paper);
+  }
+
+  .overlay p {
+    font-size: 14px;
+    line-height: 1.9;
+    color: rgba(255,248,236,0.75);
+    margin: 0 0 28px;
+  }
+
+  .close-btn {
+    background: none;
+    border: 1px solid rgba(255,248,236,0.3);
+    color: var(--paper);
+    padding: 10px 28px;
+    border-radius: 999px;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .close-btn:hover {
+    border-color: var(--gold-soft);
+    color: var(--gold-soft);
+  }
+
+  canvas#confetti {
+    position: fixed;
+    inset: 0;
+    z-index: 11;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lantern, .star { animation: none; }
+  }
+</style>
 </head>
 <body>
-  <h1>お誕生日おめでとう！🎉</h1>
-  <p>ここに好きなメッセージやああ画像を入れていきます。</p>
+
+<div class="sky"></div>
+<div class="stars" id="stars"></div>
+
+<main>
+  <div class="eyebrow">HAPPY BIRTHDAY</div>
+  <h1>お誕生日<br><span class="name-slot">○○</span>さん、おめでとう</h1>
+  <p class="lede">
+    今日という日を、みんなでお祝いできることが嬉しいです。<br>
+    これからの一年も、笑顔あふれる毎日になりますように。
+  </p>
+
+  <div class="lanterns" id="lanterns"></div>
+
+  <div class="hint">灯りをひとつ、そっと選んでみてください</div>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-card">
+    <div class="overlay-eyebrow">SURPRISE MESSAGE</div>
+    <h2>就任1周年<br>おめでとうございます</h2>
+    <p>
+      この一年、本当にお疲れさまでした。<br>
+      新しい役割にまっすぐ向き合う姿を、みんなずっと見ていました。<br>
+      これからの一年も、一緒に歩んでいけたら嬉しいです。
+    </p>
+    <button class="close-btn" id="closeBtn">とじる</button>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+  // 星を散りばめる
+  const starsWrap = document.getElementById('stars');
+  const starCount = 60;
+  for (let i = 0; i < starCount; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.top = Math.random() * 60 + 'vh';
+    s.style.animationDelay = (Math.random() * 3) + 's';
+    starsWrap.appendChild(s);
+  }
+
+  // 提灯を並べる（この中の1つだけ secret = サプライズ提灯）
+  const lanternsWrap = document.getElementById('lanterns');
+  const total = 6;
+  const secretIndex = 4; // ここが「もう一人へのサプライズ」提灯。位置は自由に変更可
+
+  const positions = [
+    { left: '8%',  top: '20px' },
+    { left: '28%', top: '90px' },
+    { left: '50%', top: '10px' },
+    { left: '68%', top: '110px' },
+    { left: '82%', top: '40px' },  // secretIndex の位置
+    { left: '38%', top: '190px' },
+  ];
+
+  for (let i = 0; i < total; i++) {
+    const l = document.createElement('div');
+    l.className = 'lantern' + (i === secretIndex ? ' secret' : '');
+    l.style.left = positions[i].left;
+    l.style.top = positions[i].top;
+    l.style.animationDelay = (i * 0.4) + 's';
+    l.innerHTML = '<div class="string"></div><div class="lantern-body"></div>';
+
+    l.addEventListener('click', () => {
+      if (i === secretIndex) {
+        openSurprise();
+      } else {
+        // ハズレの提灯は軽く光るだけ
+        l.style.transform = 'scale(1.15)';
+        setTimeout(() => { l.style.transform = ''; }, 300);
+      }
+    });
+
+    lanternsWrap.appendChild(l);
+  }
+
+  // サプライズ表示 + 紙吹雪
+  const overlay = document.getElementById('overlay');
+  const closeBtn = document.getElementById('closeBtn');
+
+  function openSurprise() {
+    overlay.classList.add('show');
+    launchConfetti();
+  }
+  closeBtn.addEventListener('click', () => {
+    overlay.classList.remove('show');
+  });
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('show');
+  });
+
+  // 軽量な紙吹雪アニメーション（外部ライブラリなし）
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let animId = null;
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  const colors = ['#f2b544', '#ffd98a', '#ff6f91', '#ffb3c6', '#fff8ec'];
+
+  function launchConfetti() {
+    particles = [];
+    for (let i = 0; i < 120; i++) {
+      particles.push({
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        vx: (Math.random() - 0.5) * 12,
+        vy: (Math.random() - 1.2) * 12,
+        size: Math.random() * 6 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * 360,
+        vr: (Math.random() - 0.5) * 10,
+        life: 0,
+      });
+    }
+    if (animId) cancelAnimationFrame(animId);
+    animateConfetti();
+  }
+
+  function animateConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    particles.forEach(p => {
+      p.vy += 0.25; // 重力
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rotation += p.vr;
+      p.life += 1;
+      if (p.life < 180) alive = true;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.rotation * Math.PI) / 180);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, 1 - p.life / 180);
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+      ctx.restore();
+    });
+
+    if (alive) {
+      animId = requestAnimationFrame(animateConfetti);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+</script>
+
 </body>
 </html>
