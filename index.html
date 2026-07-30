@@ -16,6 +16,8 @@
     --sakura: #ff6f91;
     --sakura-soft: #ffb3c6;
     --paper: #fff8ec;
+    --paper-card: #fffaf0;
+    --ink: #3a2f2f;
   }
 
   * { box-sizing: border-box; }
@@ -30,6 +32,72 @@
     min-height: 100%;
   }
 
+  /* ============ ローディング画面 ============ */
+  #loading {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--night-deep);
+    transition: opacity 0.9s ease, visibility 0.9s ease;
+  }
+  #loading.hide {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .loader-lantern {
+    width: 64px;
+    height: 84px;
+    position: relative;
+    margin-bottom: 28px;
+  }
+  .loader-lantern .string {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    width: 1px;
+    height: 30px;
+    background: rgba(255,255,255,0.15);
+  }
+  .loader-lantern .body {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 52px;
+    height: 68px;
+    border-radius: 50% / 40%;
+    background: radial-gradient(circle at 50% 40%, rgba(242,181,68,0.15), rgba(242,181,68,0.05) 70%);
+    box-shadow: 0 0 0 rgba(242,181,68,0);
+    animation: lightUp 2.2s ease-in-out forwards;
+  }
+  @keyframes lightUp {
+    0%   { background: radial-gradient(circle at 50% 40%, rgba(242,181,68,0.1), rgba(242,181,68,0.03) 70%); box-shadow: 0 0 0 rgba(242,181,68,0); }
+    100% { background: radial-gradient(circle at 50% 40%, var(--gold-soft), var(--gold) 70%); box-shadow: 0 0 24px rgba(242,181,68,0.7), 0 0 50px rgba(242,181,68,0.3); }
+  }
+
+  .loader-text {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    color: rgba(255,248,236,0.55);
+  }
+  .loader-text .dot {
+    animation: blink 1.4s infinite;
+  }
+  .loader-text .dot:nth-child(2) { animation-delay: 0.2s; }
+  .loader-text .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+  }
+
+  /* ============ 背景 ============ */
   .sky {
     position: fixed;
     inset: 0;
@@ -39,7 +107,6 @@
       linear-gradient(180deg, var(--night-deep) 0%, var(--night) 55%, #1c1c3a 100%);
     z-index: 0;
   }
-
   .stars {
     position: fixed;
     inset: 0;
@@ -63,10 +130,17 @@
   main {
     position: relative;
     z-index: 1;
-    max-width: 640px;
+    max-width: 720px;
     margin: 0 auto;
-    padding: 72px 24px 140px;
+    padding: 72px 24px 120px;
     text-align: center;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  main.reveal {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .eyebrow {
@@ -99,12 +173,12 @@
     font-size: 15px;
     line-height: 1.9;
     color: rgba(255,248,236,0.75);
-    max-width: 420px;
+    max-width: 440px;
     margin: 20px auto 0;
   }
 
   .hint {
-    margin-top: 56px;
+    margin-top: 48px;
     font-size: 12px;
     letter-spacing: 0.15em;
     color: rgba(255,248,236,0.4);
@@ -112,8 +186,8 @@
 
   .lanterns {
     position: relative;
-    height: 380px;
-    margin-top: 40px;
+    height: 360px;
+    margin-top: 32px;
   }
 
   .lantern {
@@ -163,7 +237,6 @@
     height: 34px;
     background: rgba(255,255,255,0.15);
   }
-
   .lantern.secret .lantern-body::before {
     background: radial-gradient(circle at 50% 40%, var(--sakura-soft), var(--sakura) 70%);
     box-shadow: 0 0 18px rgba(255,111,145,0.5), 0 0 40px rgba(255,111,145,0.2);
@@ -174,7 +247,66 @@
     50% { transform: translateY(-14px); }
   }
 
-  /* overlay */
+  /* ============ メッセージウォール ============ */
+  .wall-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 15px;
+    letter-spacing: 0.2em;
+    color: var(--gold-soft);
+    margin: 64px 0 28px;
+  }
+
+  .wall {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px;
+    text-align: left;
+  }
+
+  .card {
+    background: var(--paper-card);
+    color: var(--ink);
+    border-radius: 4px;
+    padding: 20px 20px 18px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+    position: relative;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 24px;
+    width: 30px;
+    height: 12px;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid rgba(0,0,0,0.05);
+    transform: rotate(-3deg);
+  }
+  .card:nth-child(3n)::before { transform: rotate(2deg); left: auto; right: 24px; }
+  .card:nth-child(3n+1) { transform: rotate(-0.6deg); }
+  .card:nth-child(3n+2) { transform: rotate(0.5deg); }
+  .card:nth-child(3n)   { transform: rotate(-0.3deg); }
+
+  .card .msg {
+    font-size: 13.5px;
+    line-height: 1.85;
+    margin: 0 0 14px;
+    white-space: pre-line;
+  }
+  .card .from {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 12.5px;
+    text-align: right;
+    color: #8a6a3a;
+  }
+  .card .from::before {
+    content: 'from ';
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 10.5px;
+    color: #b09060;
+  }
+
+  /* ============ オーバーレイ（サプライズ） ============ */
   .overlay {
     position: fixed;
     inset: 0;
@@ -183,11 +315,12 @@
     align-items: center;
     justify-content: center;
     padding: 24px;
-    background: rgba(10,10,26,0.88);
+    background: rgba(10,10,26,0.92);
     backdrop-filter: blur(4px);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease;
+    overflow-y: auto;
   }
   .overlay.show {
     opacity: 1;
@@ -195,10 +328,12 @@
   }
 
   .overlay-card {
-    max-width: 440px;
+    max-width: 480px;
+    width: 100%;
     text-align: center;
     transform: scale(0.9);
     transition: transform 0.5s cubic-bezier(.2,.9,.3,1.3);
+    padding: 40px 0 20px;
   }
   .overlay.show .overlay-card {
     transform: scale(1);
@@ -213,17 +348,21 @@
 
   .overlay h2 {
     font-family: 'Shippori Mincho', serif;
-    font-size: clamp(28px, 7vw, 42px);
+    font-size: clamp(26px, 7vw, 38px);
     line-height: 1.5;
     margin: 0 0 16px;
     color: var(--paper);
   }
 
-  .overlay p {
+  .overlay > .overlay-card > p {
     font-size: 14px;
     line-height: 1.9;
     color: rgba(255,248,236,0.75);
-    margin: 0 0 28px;
+    margin: 0 0 8px;
+  }
+
+  .overlay .wall-title {
+    margin: 40px 0 20px;
   }
 
   .close-btn {
@@ -236,6 +375,7 @@
     letter-spacing: 0.08em;
     cursor: pointer;
     font-family: inherit;
+    margin-top: 36px;
   }
   .close-btn:hover {
     border-color: var(--gold-soft);
@@ -249,6 +389,83 @@
     pointer-events: none;
   }
 
+  /* ============ 1通ずつ出るメッセージポップアップ ============ */
+  .msg-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 12;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(10,10,26,0.7);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.45s ease;
+  }
+  .msg-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .msg-overlay .card {
+    max-width: 320px;
+    width: 100%;
+    transform: scale(0.85) translateY(10px);
+    transition: transform 0.45s cubic-bezier(.2,.9,.3,1.3);
+  }
+  .msg-overlay.show .card {
+    transform: scale(1) translateY(0);
+  }
+  .msg-overlay .card .msg {
+    font-size: 14.5px;
+  }
+
+  /* ============ 「残り1つ」案内 ============ */
+  .progress-hint {
+    margin-top: 20px;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    color: var(--gold-soft);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+    text-shadow: 0 0 16px rgba(242,181,68,0.5);
+  }
+  .progress-hint.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* 早押し用の軽いツールチップ */
+  .tease {
+    position: fixed;
+    left: 50%;
+    bottom: 48px;
+    transform: translateX(-50%) translateY(10px);
+    background: rgba(255,248,236,0.95);
+    color: var(--ink);
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    letter-spacing: 0.05em;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+  }
+  .tease.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* 読了済みの提灯は灯りを落とす */
+  .lantern.read .lantern-body::before {
+    filter: brightness(0.55) saturate(0.7);
+    box-shadow: 0 0 8px rgba(242,181,68,0.25);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .lantern, .star { animation: none; }
   }
@@ -256,10 +473,18 @@
 </head>
 <body>
 
+<div id="loading">
+  <div class="loader-lantern">
+    <div class="string"></div>
+    <div class="body"></div>
+  </div>
+  <div class="loader-text">灯りをともしています<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
+</div>
+
 <div class="sky"></div>
 <div class="stars" id="stars"></div>
 
-<main>
+<main id="main">
   <div class="eyebrow">HAPPY BIRTHDAY</div>
   <h1>お誕生日<br><span class="name-slot">○○</span>さん、おめでとう</h1>
   <p class="lede">
@@ -268,9 +493,15 @@
   </p>
 
   <div class="lanterns" id="lanterns"></div>
-
-  <div class="hint">灯りをひとつ、そっと選んでみてください</div>
+  <div class="hint" id="hint">灯りをひとつずつ、そっと選んでみてください</div>
+  <div class="progress-hint" id="progressHint">灯りがもうひとつ、残っています</div>
 </main>
+
+<div class="msg-overlay" id="msgOverlay">
+  <div class="card" id="msgCard"></div>
+</div>
+
+<div class="tease" id="tease">まずは他の灯りから見てみてください</div>
 
 <div class="overlay" id="overlay">
   <div class="overlay-card">
@@ -278,9 +509,12 @@
     <h2>就任1周年<br>おめでとうございます</h2>
     <p>
       この一年、本当にお疲れさまでした。<br>
-      新しい役割にまっすぐ向き合う姿を、みんなずっと見ていました。<br>
-      これからの一年も、一緒に歩んでいけたら嬉しいです。
+      新しい役割にまっすぐ向き合う姿を、みんなずっと見ていました。
     </p>
+
+    <div class="wall-title">みんなからのメッセージ</div>
+    <div class="wall" id="anniversaryWall"></div>
+
     <button class="close-btn" id="closeBtn">とじる</button>
   </div>
 </div>
@@ -288,10 +522,49 @@
 <canvas id="confetti"></canvas>
 
 <script>
+  /* ============================================================
+     編集ポイント：ここのメッセージ配列を書き換えてください
+     name: 送り主の名前 / message: メッセージ本文（改行は \n でOK）
+     人数は自由に増減できます
+  ============================================================ */
+  const birthdayMessages = [
+    { name: "たなか", message: "お誕生日おめでとう！\n今年もたくさん遊ぼうね。" },
+    { name: "さとう", message: "おめでとうございます！\nいつも元気をもらってます。" },
+    { name: "やまだ", message: "誕生日おめでとう〜！\n良い一年になりますように。" },
+    { name: "すずき", message: "おめでとう！\nまた一緒にごはん行きましょう。" },
+    { name: "いとう", message: "お誕生日おめでとうございます。\nこれからもよろしくお願いします。" },
+  ];
+
+  const anniversaryMessages = [
+    { name: "たなか", message: "就任1周年おめでとうございます！\nこの一年、本当にお疲れさまでした。" },
+    { name: "さとう", message: "1年間よく頑張りましたね。\nこれからも応援しています。" },
+    { name: "やまだ", message: "おめでとうございます！\n次の一年も楽しみにしています。" },
+  ];
+
+  /* ============================================================ */
+
+  function renderWall(containerId, messages) {
+    const wrap = document.getElementById(containerId);
+    wrap.innerHTML = "";
+    messages.forEach(m => {
+      const card = document.createElement("div");
+      card.className = "card";
+      const msg = document.createElement("p");
+      msg.className = "msg";
+      msg.textContent = m.message;
+      const from = document.createElement("div");
+      from.className = "from";
+      from.textContent = m.name;
+      card.appendChild(msg);
+      card.appendChild(from);
+      wrap.appendChild(card);
+    });
+  }
+  renderWall("anniversaryWall", anniversaryMessages);
+
   // 星を散りばめる
   const starsWrap = document.getElementById('stars');
-  const starCount = 60;
-  for (let i = 0; i < starCount; i++) {
+  for (let i = 0; i < 60; i++) {
     const s = document.createElement('div');
     s.className = 'star';
     s.style.left = Math.random() * 100 + 'vw';
@@ -303,16 +576,23 @@
   // 提灯を並べる（この中の1つだけ secret = サプライズ提灯）
   const lanternsWrap = document.getElementById('lanterns');
   const total = 6;
-  const secretIndex = 4; // ここが「もう一人へのサプライズ」提灯。位置は自由に変更可
+  const secretIndex = 4;
 
   const positions = [
     { left: '8%',  top: '20px' },
     { left: '28%', top: '90px' },
     { left: '50%', top: '10px' },
     { left: '68%', top: '110px' },
-    { left: '82%', top: '40px' },  // secretIndex の位置
+    { left: '82%', top: '40px' },
     { left: '38%', top: '190px' },
   ];
+
+  // 黄色い提灯（非secret）に、誕生日メッセージを順番に割り当てる
+  const nonSecretIndexes = [];
+  for (let i = 0; i < total; i++) { if (i !== secretIndex) nonSecretIndexes.push(i); }
+
+  const readSet = new Set();
+  const lanternEls = [];
 
   for (let i = 0; i < total; i++) {
     const l = document.createElement('div');
@@ -321,18 +601,64 @@
     l.style.top = positions[i].top;
     l.style.animationDelay = (i * 0.4) + 's';
     l.innerHTML = '<div class="string"></div><div class="lantern-body"></div>';
+    lanternEls[i] = l;
 
     l.addEventListener('click', () => {
       if (i === secretIndex) {
-        openSurprise();
-      } else {
-        // ハズレの提灯は軽く光るだけ
-        l.style.transform = 'scale(1.15)';
-        setTimeout(() => { l.style.transform = ''; }, 300);
+        if (readSet.size < nonSecretIndexes.length) {
+          showTease();
+        } else {
+          openSurprise();
+        }
+        return;
+      }
+
+      const msgIndex = nonSecretIndexes.indexOf(i);
+      const data = birthdayMessages[msgIndex];
+      if (!data) return;
+
+      showSingleMessage(data);
+
+      if (!readSet.has(i)) {
+        readSet.add(i);
+        l.classList.add('read');
+      }
+
+      if (readSet.size === nonSecretIndexes.length) {
+        setTimeout(() => {
+          document.getElementById('progressHint').classList.add('show');
+        }, 700);
       }
     });
 
     lanternsWrap.appendChild(l);
+  }
+
+  // 1通ずつのメッセージポップアップ
+  const msgOverlay = document.getElementById('msgOverlay');
+  const msgCard = document.getElementById('msgCard');
+
+  function showSingleMessage(data) {
+    msgCard.innerHTML = '';
+    const msg = document.createElement('p');
+    msg.className = 'msg';
+    msg.textContent = data.message;
+    const from = document.createElement('div');
+    from.className = 'from';
+    from.textContent = data.name;
+    msgCard.appendChild(msg);
+    msgCard.appendChild(from);
+    msgOverlay.classList.add('show');
+  }
+  msgOverlay.addEventListener('click', () => msgOverlay.classList.remove('show'));
+
+  // 早押しツールチップ
+  const tease = document.getElementById('tease');
+  let teaseTimer = null;
+  function showTease() {
+    tease.classList.add('show');
+    if (teaseTimer) clearTimeout(teaseTimer);
+    teaseTimer = setTimeout(() => tease.classList.remove('show'), 2200);
   }
 
   // サプライズ表示 + 紙吹雪
@@ -343,58 +669,38 @@
     overlay.classList.add('show');
     launchConfetti();
   }
-  closeBtn.addEventListener('click', () => {
-    overlay.classList.remove('show');
-  });
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.classList.remove('show');
-  });
+  closeBtn.addEventListener('click', () => overlay.classList.remove('show'));
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('show'); });
 
-  // 軽量な紙吹雪アニメーション（外部ライブラリなし）
+  // 紙吹雪
   const canvas = document.getElementById('confetti');
   const ctx = canvas.getContext('2d');
   let particles = [];
   let animId = null;
-
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
+  function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
-
   const colors = ['#f2b544', '#ffd98a', '#ff6f91', '#ffb3c6', '#fff8ec'];
 
   function launchConfetti() {
     particles = [];
     for (let i = 0; i < 120; i++) {
       particles.push({
-        x: canvas.width / 2,
-        y: canvas.height / 2,
-        vx: (Math.random() - 0.5) * 12,
-        vy: (Math.random() - 1.2) * 12,
-        size: Math.random() * 6 + 4,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        rotation: Math.random() * 360,
-        vr: (Math.random() - 0.5) * 10,
-        life: 0,
+        x: canvas.width / 2, y: canvas.height / 2,
+        vx: (Math.random() - 0.5) * 12, vy: (Math.random() - 1.2) * 12,
+        size: Math.random() * 6 + 4, color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * 360, vr: (Math.random() - 0.5) * 10, life: 0,
       });
     }
     if (animId) cancelAnimationFrame(animId);
     animateConfetti();
   }
-
   function animateConfetti() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let alive = false;
     particles.forEach(p => {
-      p.vy += 0.25; // 重力
-      p.x += p.vx;
-      p.y += p.vy;
-      p.rotation += p.vr;
-      p.life += 1;
+      p.vy += 0.25; p.x += p.vx; p.y += p.vy; p.rotation += p.vr; p.life += 1;
       if (p.life < 180) alive = true;
-
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate((p.rotation * Math.PI) / 180);
@@ -403,13 +709,17 @@
       ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
       ctx.restore();
     });
-
-    if (alive) {
-      animId = requestAnimationFrame(animateConfetti);
-    } else {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    if (alive) animId = requestAnimationFrame(animateConfetti);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
+
+  // ローディング演出 → メイン画面へ
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('loading').classList.add('hide');
+      document.getElementById('main').classList.add('reveal');
+    }, 2200);
+  });
 </script>
 
 </body>
