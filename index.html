@@ -127,12 +127,37 @@
     50% { opacity: 0.9; }
   }
 
+  /* 桜の花びら（常に画面に動きを出す） */
+  .petals {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .petal {
+    position: absolute;
+    top: -20px;
+    width: 10px;
+    height: 10px;
+    background: linear-gradient(135deg, var(--sakura-soft), var(--sakura));
+    border-radius: 60% 0 60% 0;
+    opacity: 0.55;
+    animation: petalFall linear infinite;
+  }
+  @keyframes petalFall {
+    0% { transform: translate(0, -5vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.4; }
+    100% { transform: translate(40px, 105vh) rotate(320deg); opacity: 0; }
+  }
+
   main {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     max-width: 720px;
     margin: 0 auto;
-    padding: 72px 24px 120px;
+    padding: 64px 24px 120px;
     text-align: center;
     opacity: 0;
     transform: translateY(16px);
@@ -141,6 +166,29 @@
   main.reveal {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  /* ============ ヒーローアバター ============ */
+  .hero-avatar {
+    width: 92px;
+    height: 92px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    position: relative;
+    padding: 4px;
+    background: conic-gradient(from 0deg, var(--gold), var(--sakura-soft), var(--gold-soft), var(--gold));
+    animation: heroSpin 6s linear infinite;
+  }
+  .hero-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    background: var(--night-deep);
+  }
+  @keyframes heroSpin {
+    to { transform: rotate(360deg); }
   }
 
   .eyebrow {
@@ -185,7 +233,7 @@
   }
 
   @media (max-width: 480px) {
-    main { padding-top: 48px; padding-bottom: 90px; }
+    main { padding-top: 44px; padding-bottom: 90px; }
     .lanterns { height: 300px; margin-top: 20px; }
     .hint { margin-top: 18px; }
   }
@@ -223,6 +271,7 @@
     border-radius: 50% / 40%;
     background: radial-gradient(circle at 50% 40%, var(--gold-soft), var(--gold) 70%);
     box-shadow: 0 0 18px rgba(242,181,68,0.6), 0 0 40px rgba(242,181,68,0.25);
+    animation: invitePulse 2.6s ease-in-out infinite;
   }
   .lantern-body::after {
     content: '';
@@ -247,10 +296,19 @@
     background: radial-gradient(circle at 50% 40%, var(--sakura-soft), var(--sakura) 70%);
     box-shadow: 0 0 18px rgba(255,111,145,0.5), 0 0 40px rgba(255,111,145,0.2);
   }
+  .lantern.read .lantern-body::before {
+    filter: brightness(0.55) saturate(0.7);
+    box-shadow: 0 0 8px rgba(242,181,68,0.25);
+    animation: none;
+  }
 
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-14px); }
+  }
+  @keyframes invitePulse {
+    0%, 100% { box-shadow: 0 0 18px rgba(242,181,68,0.6), 0 0 40px rgba(242,181,68,0.25); }
+    50% { box-shadow: 0 0 26px rgba(242,181,68,0.85), 0 0 56px rgba(242,181,68,0.4); }
   }
 
   /* ============ メッセージウォール ============ */
@@ -352,6 +410,23 @@
     margin-bottom: 14px;
   }
 
+  .overlay-avatar {
+    width: 84px;
+    height: 84px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    padding: 4px;
+    background: conic-gradient(from 0deg, var(--sakura), var(--gold-soft), var(--sakura-soft), var(--sakura));
+  }
+  .overlay-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    background: var(--night-deep);
+  }
+
   .overlay h2 {
     font-family: 'Shippori Mincho', serif;
     font-size: clamp(26px, 7vw, 38px);
@@ -444,6 +519,26 @@
     transform: translateY(0);
   }
 
+  /* 進捗ドット */
+  .progress-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .progress-dots .dot-item {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255,248,236,0.2);
+    transition: background 0.4s ease, transform 0.4s ease;
+  }
+  .progress-dots .dot-item.filled {
+    background: var(--gold-soft);
+    box-shadow: 0 0 8px rgba(242,181,68,0.7);
+    transform: scale(1.15);
+  }
+
   /* 早押し用の軽いツールチップ */
   .tease {
     position: fixed;
@@ -464,12 +559,6 @@
   .tease.show {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
-  }
-
-  /* 読了済みの提灯は灯りを落とす */
-  .lantern.read .lantern-body::before {
-    filter: brightness(0.55) saturate(0.7);
-    box-shadow: 0 0 8px rgba(242,181,68,0.25);
   }
 
   /* ============ 受け渡しクッション画面 ============ */
@@ -512,6 +601,7 @@
     justify-content: center;
     opacity: 0.55;
     animation: avatarPulse 2.4s ease-in-out infinite;
+    overflow: hidden;
   }
   .avatar-x img {
     width: 100%;
@@ -540,6 +630,7 @@
     font-size: 12px;
     font-weight: 700;
     color: #fff;
+    z-index: 1;
   }
   @keyframes avatarPulse {
     0%, 100% { opacity: 0.4; }
@@ -583,7 +674,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .lantern, .star { animation: none; }
+    .lantern, .star, .petal, .hero-avatar { animation: none; }
   }
 </style>
 </head>
@@ -599,8 +690,12 @@
 
 <div class="sky"></div>
 <div class="stars" id="stars"></div>
+<div class="petals" id="petals"></div>
 
 <main id="main">
+  <div class="hero-avatar">
+    <img id="heroAvatar" src="" alt="">
+  </div>
   <div class="eyebrow">HAPPY BIRTHDAY</div>
   <h1><span class="name-slot">会長</span>、お誕生日<br>おめでとうございます</h1>
   <p class="lede">
@@ -610,16 +705,20 @@
 
   <div class="lanterns" id="lanterns"></div>
   <div class="hint" id="hint">灯りをひとつずつ、そっと選んでみてください</div>
+  <div class="progress-dots" id="progressDots"></div>
   <div class="progress-hint" id="progressHint">灯りがもうひとつ、残っています</div>
 </main>
 
 <div class="handoff-overlay" id="handoffOverlay">
   <div class="handoff-card">
     <div class="handoff-eyebrow">ちょっと待って</div>
-    <!-- 差し替えポイント：src を該当者のXアイコンのURLに変更してください -->
     <div class="avatar-x">
-      <img id="handoffAvatar" src="https://x.com/furu_gogo/photo" alt="" style="display:none;">
-
+      <img id="handoffAvatar" src="" alt="" style="display:none;">
+      <svg id="handoffFallback" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="8" r="4" stroke="#fff8ec" stroke-width="1.5"/>
+        <path d="M4 20c0-4 3.6-6 8-6s8 2 8 6" stroke="#fff8ec" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div class="x-badge">𝕏</div>
     </div>
     <p class="main-line">実は、もうひとり<br>お祝いしたい人がいます。</p>
     <p class="sub-line">この端末を、そっと渡してください。</p>
@@ -636,6 +735,9 @@
 <div class="overlay" id="overlay">
   <div class="overlay-card">
     <div class="overlay-eyebrow">SURPRISE MESSAGE</div>
+    <div class="overlay-avatar">
+      <img id="overlayAvatar" src="" alt="">
+    </div>
     <h2>古谷さん<br>就任1周年<br>おめでとうございます</h2>
 
     <div class="wall-title">みんなからのメッセージ</div>
@@ -649,21 +751,44 @@
 
 <script>
   /* ============================================================
-     編集ポイント：ここのメッセージ配列を書き換えてください
+     編集ポイント①：メッセージ配列
      name: 送り主の名前 / message: メッセージ本文（改行は \n でOK）
-     人数は自由に増減できます
   ============================================================ */
   const birthdayMessages = [
-  { name: "松本CA オニオニ", message: "会長、誕生日おめでとうございます🥳\nこれからもCAの顔として活躍お願いします🙇" },
-  { name: "松本CA ると", message: "お誕生日おめでとうございます！会長の行動力にはいつも刺激をいただいています✨また逢いに行きます！" },
-];
+    { name: "松本CA オニオニ", message: "会長、誕生日おめでとうございます🥳\nこれからもCAの顔として活躍お願いします🙇" },
+    { name: "松本CA ると", message: "お誕生日おめでとうございます！会長の行動力にはいつも刺激をいただいています✨また逢いに行きます！" },
+  ];
 
-const anniversaryMessages = [
-  { name: "松本CA オニオニ", message: "古谷さん\n就任1周年おめでとうございます。GOフェス東京ではお世話になりました。また、ご一緒しましょう。" },
-  { name: "松本CA ると", message: "就任1周年おめでとうございます！新たなグループ Pokémon GO Club Uenoの活動応援してます！" },
-];
+  const anniversaryMessages = [
+    { name: "松本CA オニオニ", message: "古谷さん\n就任1周年おめでとうございます。GOフェス東京ではお世話になりました。また、ご一緒しましょう。" },
+    { name: "松本CA ると", message: "就任1周年おめでとうございます！新たなグループ Pokémon GO Club Uenoの活動応援してます！" },
+  ];
+
+  /* ============================================================
+     編集ポイント②：写真
+     GitHubリポジトリに画像をアップロードし、ファイル名をそのまま入れてください
+     （index.htmlと同じ階層にアップロードした場合。フォルダに入れた場合は "images/xxx.jpg" のように）
+  ============================================================ */
+  const firstPersonAvatarUrl  = "llDJXHla_400x400.jpg"; // 会長（一人目）
+  const secondPersonAvatarUrl = "PUHP1TQ2_400x400.jpg"; // 古谷さん（二人目・サプライズ）
 
   /* ============================================================ */
+
+  // 写真の反映
+  const heroAvatar = document.getElementById('heroAvatar');
+  const overlayAvatar = document.getElementById('overlayAvatar');
+  const handoffAvatar = document.getElementById('handoffAvatar');
+  const handoffFallback = document.getElementById('handoffFallback');
+
+  if (firstPersonAvatarUrl) {
+    heroAvatar.src = firstPersonAvatarUrl;
+  }
+  if (secondPersonAvatarUrl) {
+    overlayAvatar.src = secondPersonAvatarUrl;
+    handoffAvatar.src = secondPersonAvatarUrl;
+    handoffAvatar.style.display = 'block';
+    if (handoffFallback) handoffFallback.style.display = 'none';
+  }
 
   function renderWall(containerId, messages) {
     const wrap = document.getElementById(containerId);
@@ -695,6 +820,19 @@ const anniversaryMessages = [
     starsWrap.appendChild(s);
   }
 
+  // 桜の花びらを常に降らせる（提灯が少なくても画面に動きを出す）
+  const petalsWrap = document.getElementById('petals');
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (9 + Math.random() * 7) + 's';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    p.style.opacity = 0.3 + Math.random() * 0.3;
+    p.style.width = p.style.height = (6 + Math.random() * 6) + 'px';
+    petalsWrap.appendChild(p);
+  }
+
   // 提灯を並べる（黄色い提灯＝birthdayMessagesの数だけ自動生成、最後に1つだけ secret を追加）
   const lanternsWrap = document.getElementById('lanterns');
   const total = birthdayMessages.length + 1;
@@ -712,6 +850,16 @@ const anniversaryMessages = [
   const nonSecretIndexes = [];
   for (let i = 0; i < total; i++) { if (i !== secretIndex) nonSecretIndexes.push(i); }
 
+  // 進捗ドットを描画
+  const progressDots = document.getElementById('progressDots');
+  const dotEls = [];
+  nonSecretIndexes.forEach(() => {
+    const d = document.createElement('div');
+    d.className = 'dot-item';
+    progressDots.appendChild(d);
+    dotEls.push(d);
+  });
+
   const readSet = new Set();
   const lanternEls = [];
 
@@ -724,7 +872,7 @@ const anniversaryMessages = [
     l.innerHTML = '<div class="string"></div><div class="lantern-body"></div>';
     lanternEls[i] = l;
 
-    l.addEventListener('click', () => {
+    l.addEventListener('click', (evt) => {
       if (i === secretIndex) {
         if (readSet.size < nonSecretIndexes.length) {
           showTease();
@@ -739,17 +887,19 @@ const anniversaryMessages = [
       if (!data) return;
 
       showSingleMessage(data);
+      burstAt(evt.clientX, evt.clientY, 46); // タップした場所で小さめの紙吹雪
 
       if (!readSet.has(i)) {
         readSet.add(i);
         l.classList.add('read');
+        if (dotEls[msgIndex]) dotEls[msgIndex].classList.add('filled');
       }
 
       if (readSet.size === nonSecretIndexes.length) {
-        launchConfetti();
         setTimeout(() => {
+          burstAt(window.innerWidth / 2, window.innerHeight / 2, 130);
           document.getElementById('progressHint').classList.add('show');
-        }, 700);
+        }, 500);
       }
     });
 
@@ -786,16 +936,6 @@ const anniversaryMessages = [
   // 受け渡しクッション画面
   const handoffOverlay = document.getElementById('handoffOverlay');
   const handoffContinue = document.getElementById('handoffContinue');
-  const handoffAvatar = document.getElementById('handoffAvatar');
-  const handoffFallback = document.getElementById('handoffFallback');
-
-  // 差し替えポイント：ここにXアイコンの画像URLを入れると自動でアイコン表示に切り替わります
-  const secondPersonAvatarUrl = ""; // 例: "https://example.com/icon.jpg"
-  if (secondPersonAvatarUrl) {
-    handoffAvatar.src = secondPersonAvatarUrl;
-    handoffAvatar.style.display = 'block';
-    handoffFallback.style.display = 'none';
-  }
 
   function openHandoff() {
     handoffOverlay.classList.add('show');
@@ -811,12 +951,12 @@ const anniversaryMessages = [
 
   function openSurprise() {
     overlay.classList.add('show');
-    launchConfetti();
+    burstAt(window.innerWidth / 2, window.innerHeight / 2, 160);
   }
   closeBtn.addEventListener('click', () => overlay.classList.remove('show'));
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('show'); });
 
-  // 紙吹雪
+  // 紙吹雪（タップ位置から出せるように origin を指定可能にする）
   const canvas = document.getElementById('confetti');
   const ctx = canvas.getContext('2d');
   let particles = [];
@@ -826,25 +966,24 @@ const anniversaryMessages = [
   resizeCanvas();
   const colors = ['#f2b544', '#ffd98a', '#ff6f91', '#ffb3c6', '#fff8ec'];
 
-  function launchConfetti() {
-    particles = [];
-    for (let i = 0; i < 120; i++) {
+  function burstAt(x, y, count) {
+    for (let i = 0; i < count; i++) {
       particles.push({
-        x: canvas.width / 2, y: canvas.height / 2,
+        x: x, y: y,
         vx: (Math.random() - 0.5) * 12, vy: (Math.random() - 1.2) * 12,
         size: Math.random() * 6 + 4, color: colors[Math.floor(Math.random() * colors.length)],
         rotation: Math.random() * 360, vr: (Math.random() - 0.5) * 10, life: 0,
       });
     }
-    if (animId) cancelAnimationFrame(animId);
-    animateConfetti();
+    if (!animId) animateConfetti();
   }
   function animateConfetti() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let alive = false;
+    particles = particles.filter(p => p.life < 180);
     particles.forEach(p => {
       p.vy += 0.25; p.x += p.vx; p.y += p.vy; p.rotation += p.vr; p.life += 1;
-      if (p.life < 180) alive = true;
+      alive = true;
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate((p.rotation * Math.PI) / 180);
@@ -853,8 +992,12 @@ const anniversaryMessages = [
       ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
       ctx.restore();
     });
-    if (alive) animId = requestAnimationFrame(animateConfetti);
-    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (alive) {
+      animId = requestAnimationFrame(animateConfetti);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      animId = null;
+    }
   }
 
   // ローディング演出 → メイン画面へ
