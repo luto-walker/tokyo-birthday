@@ -602,7 +602,7 @@
 
 <main id="main">
   <div class="eyebrow">HAPPY BIRTHDAY</div>
-  <h1>お誕生日<br><span class="name-slot">○○</span>さん、おめでとう</h1>
+  <h1><span class="name-slot">会長</span>、お誕生日<br>おめでとうございます</h1>
   <p class="lede">
     今日という日を、みんなでお祝いできることが嬉しいです。<br>
     これからの一年も、笑顔あふれる毎日になりますように。
@@ -618,7 +618,7 @@
     <div class="handoff-eyebrow">ちょっと待って</div>
     <!-- 差し替えポイント：src を該当者のXアイコンのURLに変更してください -->
     <div class="avatar-x">
-      <img id="handoffAvatar" src="" alt="" style="display:none;">
+      <img id="handoffAvatar" src="https://x.com/furu_gogo/photo" alt="" style="display:none;">
       <svg id="handoffFallback" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="12" cy="8" r="4" stroke="#fff8ec" stroke-width="1.5"/>
         <path d="M4 20c0-4 3.6-6 8-6s8 2 8 6" stroke="#fff8ec" stroke-width="1.5" stroke-linecap="round"/>
@@ -640,11 +640,7 @@
 <div class="overlay" id="overlay">
   <div class="overlay-card">
     <div class="overlay-eyebrow">SURPRISE MESSAGE</div>
-    <h2>就任1周年<br>おめでとうございます</h2>
-    <p>
-      この一年、本当にお疲れさまでした。<br>
-      新しい役割にまっすぐ向き合う姿を、みんなずっと見ていました。
-    </p>
+    <h2>古谷さん<br>就任1周年<br>おめでとうございます</h2>
 
     <div class="wall-title">みんなからのメッセージ</div>
     <div class="wall" id="anniversaryWall"></div>
@@ -662,17 +658,11 @@
      人数は自由に増減できます
   ============================================================ */
   const birthdayMessages = [
-    { name: "たなか", message: "お誕生日おめでとう！\n今年もたくさん遊ぼうね。" },
-    { name: "さとう", message: "おめでとうございます！\nいつも元気をもらってます。" },
-    { name: "やまだ", message: "誕生日おめでとう〜！\n良い一年になりますように。" },
-    { name: "すずき", message: "おめでとう！\nまた一緒にごはん行きましょう。" },
-    { name: "いとう", message: "お誕生日おめでとうございます。\nこれからもよろしくお願いします。" },
+    { name: "松本CA オニオニ", message: "会長、誕生日おめでとうございます🥳\nこれからもCAの顔として活躍お願いします🙇" },
   ];
 
   const anniversaryMessages = [
-    { name: "たなか", message: "就任1周年おめでとうございます！\nこの一年、本当にお疲れさまでした。" },
-    { name: "さとう", message: "1年間よく頑張りましたね。\nこれからも応援しています。" },
-    { name: "やまだ", message: "おめでとうございます！\n次の一年も楽しみにしています。" },
+    { name: "松本CA オニオニ", message: "古谷さん\n就任1周年おめでとうございます。GOフェス東京ではお世話になりました。また、ご一緒しましょう。" },
   ];
 
   /* ============================================================ */
@@ -707,19 +697,18 @@
     starsWrap.appendChild(s);
   }
 
-  // 提灯を並べる（この中の1つだけ secret = サプライズ提灯）
+  // 提灯を並べる（黄色い提灯＝birthdayMessagesの数だけ自動生成、最後に1つだけ secret を追加）
   const lanternsWrap = document.getElementById('lanterns');
-  const total = 6;
-  const secretIndex = 4;
+  const total = birthdayMessages.length + 1;
+  const secretIndex = total - 1; // 一番最後がサプライズ提灯
 
-  const positions = [
-    { left: '8%',  top: '20px' },
-    { left: '28%', top: '90px' },
-    { left: '50%', top: '10px' },
-    { left: '68%', top: '110px' },
-    { left: '82%', top: '40px' },
-    { left: '38%', top: '190px' },
-  ];
+  // 見た目用の座標を自動生成（左右に散らし、上下は交互にずらす）
+  const topPattern = [20, 90, 10, 110, 40, 190, 60, 150];
+  const positions = [];
+  for (let i = 0; i < total; i++) {
+    const leftPct = total === 1 ? 50 : 10 + (80 * i) / (total - 1);
+    positions.push({ left: leftPct + '%', top: topPattern[i % topPattern.length] + 'px' });
+  }
 
   // 黄色い提灯（非secret）に、誕生日メッセージを順番に割り当てる
   const nonSecretIndexes = [];
