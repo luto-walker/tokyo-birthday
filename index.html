@@ -178,10 +178,16 @@
   }
 
   .hint {
-    margin-top: 48px;
+    margin-top: 28px;
     font-size: 12px;
     letter-spacing: 0.15em;
     color: rgba(255,248,236,0.4);
+  }
+
+  @media (max-width: 480px) {
+    main { padding-top: 48px; padding-bottom: 90px; }
+    .lanterns { height: 300px; margin-top: 20px; }
+    .hint { margin-top: 18px; }
   }
 
   .lanterns {
@@ -466,6 +472,116 @@
     box-shadow: 0 0 8px rgba(242,181,68,0.25);
   }
 
+  /* ============ 受け渡しクッション画面 ============ */
+  .handoff-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 13;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(10,10,26,0.94);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  .handoff-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .handoff-card {
+    max-width: 340px;
+    text-align: center;
+    transform: translateY(12px);
+    transition: transform 0.5s ease;
+  }
+  .handoff-overlay.show .handoff-card {
+    transform: translateY(0);
+  }
+
+  .avatar-x {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    margin: 0 auto 24px;
+    position: relative;
+    background: rgba(255,248,236,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.55;
+    animation: avatarPulse 2.4s ease-in-out infinite;
+  }
+  .avatar-x img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+  .avatar-x svg {
+    width: 34px;
+    height: 34px;
+    opacity: 0.6;
+  }
+  .avatar-x .x-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 24px;
+    height: 24px;
+    background: #000;
+    border: 2px solid var(--night-deep);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+  }
+  @keyframes avatarPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.75; }
+  }
+
+  .handoff-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: rgba(255,248,236,0.45);
+    margin-bottom: 14px;
+  }
+
+  .handoff-card p.main-line {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 19px;
+    line-height: 1.8;
+    color: var(--paper);
+    margin: 0 0 10px;
+  }
+
+  .handoff-card p.sub-line {
+    font-size: 13px;
+    line-height: 1.8;
+    color: rgba(255,248,236,0.55);
+    margin: 0 0 32px;
+  }
+
+  .handoff-btn {
+    background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+    border: none;
+    color: #2a1c05;
+    padding: 12px 34px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 6px 20px rgba(242,181,68,0.35);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .lantern, .star { animation: none; }
   }
@@ -496,6 +612,24 @@
   <div class="hint" id="hint">灯りをひとつずつ、そっと選んでみてください</div>
   <div class="progress-hint" id="progressHint">灯りがもうひとつ、残っています</div>
 </main>
+
+<div class="handoff-overlay" id="handoffOverlay">
+  <div class="handoff-card">
+    <div class="handoff-eyebrow">ちょっと待って</div>
+    <!-- 差し替えポイント：src を該当者のXアイコンのURLに変更してください -->
+    <div class="avatar-x">
+      <img id="handoffAvatar" src="" alt="" style="display:none;">
+      <svg id="handoffFallback" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="8" r="4" stroke="#fff8ec" stroke-width="1.5"/>
+        <path d="M4 20c0-4 3.6-6 8-6s8 2 8 6" stroke="#fff8ec" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div class="x-badge">𝕏</div>
+    </div>
+    <p class="main-line">実は、もうひとり<br>お祝いしたい人がいます。</p>
+    <p class="sub-line">この端末を、そっと渡してください。</p>
+    <button class="handoff-btn" id="handoffContinue">わたす</button>
+  </div>
+</div>
 
 <div class="msg-overlay" id="msgOverlay">
   <div class="card" id="msgCard"></div>
@@ -608,7 +742,7 @@
         if (readSet.size < nonSecretIndexes.length) {
           showTease();
         } else {
-          openSurprise();
+          openHandoff();
         }
         return;
       }
@@ -625,6 +759,7 @@
       }
 
       if (readSet.size === nonSecretIndexes.length) {
+        launchConfetti();
         setTimeout(() => {
           document.getElementById('progressHint').classList.add('show');
         }, 700);
@@ -660,6 +795,28 @@
     if (teaseTimer) clearTimeout(teaseTimer);
     teaseTimer = setTimeout(() => tease.classList.remove('show'), 2200);
   }
+
+  // 受け渡しクッション画面
+  const handoffOverlay = document.getElementById('handoffOverlay');
+  const handoffContinue = document.getElementById('handoffContinue');
+  const handoffAvatar = document.getElementById('handoffAvatar');
+  const handoffFallback = document.getElementById('handoffFallback');
+
+  // 差し替えポイント：ここにXアイコンの画像URLを入れると自動でアイコン表示に切り替わります
+  const secondPersonAvatarUrl = ""; // 例: "https://example.com/icon.jpg"
+  if (secondPersonAvatarUrl) {
+    handoffAvatar.src = secondPersonAvatarUrl;
+    handoffAvatar.style.display = 'block';
+    handoffFallback.style.display = 'none';
+  }
+
+  function openHandoff() {
+    handoffOverlay.classList.add('show');
+  }
+  handoffContinue.addEventListener('click', () => {
+    handoffOverlay.classList.remove('show');
+    setTimeout(openSurprise, 350);
+  });
 
   // サプライズ表示 + 紙吹雪
   const overlay = document.getElementById('overlay');
