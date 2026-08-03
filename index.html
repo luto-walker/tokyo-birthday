@@ -234,13 +234,13 @@
 
   @media (max-width: 480px) {
     main { padding-top: 44px; padding-bottom: 90px; }
-    .lanterns { height: 300px; margin-top: 20px; }
+    .lanterns { height: 220px; margin-top: 18px; }
     .hint { margin-top: 18px; }
   }
 
   .lanterns {
     position: relative;
-    height: 360px;
+    height: 260px;
     margin-top: 32px;
   }
 
@@ -300,6 +300,34 @@
     filter: brightness(0.55) saturate(0.7);
     box-shadow: 0 0 8px rgba(242,181,68,0.25);
     animation: none;
+  }
+
+  /* 動画メッセージ用の再生マーク */
+  .lantern .play-badge {
+    position: absolute;
+    top: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .lantern .play-badge::before {
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 6px 0 6px 10px;
+    border-color: transparent transparent transparent #3a2306;
+    margin-left: 2px;
+    filter: drop-shadow(0 0 2px rgba(255,255,255,0.5));
+  }
+  .lantern.read .play-badge::before {
+    border-color: transparent transparent transparent rgba(58,35,6,0.6);
   }
 
   @keyframes float {
@@ -368,6 +396,18 @@
     font-family: 'Zen Kaku Gothic New', sans-serif;
     font-size: 10.5px;
     color: #b09060;
+  }
+
+  /* 動画メッセージ用カード */
+  .card.video-card {
+    padding: 16px 16px 16px;
+  }
+  .card.video-card video {
+    width: 100%;
+    border-radius: 6px;
+    display: block;
+    margin-bottom: 12px;
+    background: #000;
   }
 
   /* ============ オーバーレイ（サプライズ） ============ */
@@ -753,11 +793,14 @@
   /* ============================================================
      編集ポイント①：メッセージ配列
      name: 送り主の名前 / message: メッセージ本文（改行は \n でOK）
+     動画にしたい場合は type: "video" と video: "ファイル名.mp4" を追加
+     （message は動画の下に添えるひとことキャプション。不要なら空文字でOK）
   ============================================================ */
   const birthdayMessages = [
     { name: "松本CA オニオニ", message: "会長、誕生日おめでとうございます🥳\nこれからもCAの顔として活躍お願いします🙇" },
     { name: "松本CA ると", message: "お誕生日おめでとうございます！会長の行動力にはいつも刺激をいただいています✨また逢いに行きます！" },
     { name: "長野CA らいこう", message: "会長、お誕生日おめでとうございます🎉陰に日向にCAグループを支えていただきありがとうございます！これからもご活躍ください😊" },
+    { name: "辰野CA ユッキー", type: "video", video: "807276036.569417.mp4", message: "" },
   ];
 
   const anniversaryMessages = [
@@ -767,8 +810,8 @@
   ];
 
   /* ============================================================
-     編集ポイント②：写真
-     GitHubリポジトリに画像をアップロードし、ファイル名をそのまま入れてください
+     編集ポイント②：写真・動画
+     GitHubリポジトリにファイルをアップロードし、ファイル名をそのまま入れてください
      （index.htmlと同じ階層にアップロードした場合。フォルダに入れた場合は "images/xxx.jpg" のように）
   ============================================================ */
   const firstPersonAvatarUrl  = "llDJXHla_400x400.jpg"; // 会長（一人目）
@@ -841,7 +884,7 @@
   const secretIndex = total - 1; // 一番最後がサプライズ提灯
 
   // 見た目用の座標を自動生成（左右に散らし、上下は交互にずらす）
-  const topPattern = [20, 90, 10, 110, 40, 190, 60, 150];
+  const topPattern = [10, 70, 0, 90, 30, 130, 50, 110];
   const positions = [];
   for (let i = 0; i < total; i++) {
     const leftPct = total === 1 ? 50 : 10 + (80 * i) / (total - 1);
@@ -866,16 +909,21 @@
   const lanternEls = [];
 
   for (let i = 0; i < total; i++) {
+    const isSecret = i === secretIndex;
+    const msgIndex = isSecret ? -1 : nonSecretIndexes.indexOf(i);
+    const data = isSecret ? null : birthdayMessages[msgIndex];
+    const isVideo = data && data.type === 'video';
+
     const l = document.createElement('div');
-    l.className = 'lantern' + (i === secretIndex ? ' secret' : '');
+    l.className = 'lantern' + (isSecret ? ' secret' : '') + (isVideo ? ' video' : '');
     l.style.left = positions[i].left;
     l.style.top = positions[i].top;
     l.style.animationDelay = (i * 0.4) + 's';
-    l.innerHTML = '<div class="string"></div><div class="lantern-body"></div>';
+    l.innerHTML = '<div class="string"></div><div class="lantern-body"></div>' + (isVideo ? '<div class="play-badge"></div>' : '');
     lanternEls[i] = l;
 
     l.addEventListener('click', (evt) => {
-      if (i === secretIndex) {
+      if (isSecret) {
         if (readSet.size < nonSecretIndexes.length) {
           showTease();
         } else {
@@ -884,11 +932,13 @@
         return;
       }
 
-      const msgIndex = nonSecretIndexes.indexOf(i);
-      const data = birthdayMessages[msgIndex];
       if (!data) return;
 
-      showSingleMessage(data);
+      if (data.type === 'video') {
+        showVideoMessage(data);
+      } else {
+        showSingleMessage(data);
+      }
       burstAt(evt.clientX, evt.clientY, 46); // タップした場所で小さめの紙吹雪
 
       if (!readSet.has(i)) {
@@ -908,11 +958,12 @@
     lanternsWrap.appendChild(l);
   }
 
-  // 1通ずつのメッセージポップアップ
+  // 1通ずつのメッセージポップアップ（テキスト）
   const msgOverlay = document.getElementById('msgOverlay');
   const msgCard = document.getElementById('msgCard');
 
   function showSingleMessage(data) {
+    msgCard.className = 'card';
     msgCard.innerHTML = '';
     const msg = document.createElement('p');
     msg.className = 'msg';
@@ -924,7 +975,37 @@
     msgCard.appendChild(from);
     msgOverlay.classList.add('show');
   }
-  msgOverlay.addEventListener('click', () => msgOverlay.classList.remove('show'));
+
+  // 1通ずつのメッセージポップアップ（動画）
+  function showVideoMessage(data) {
+    msgCard.className = 'card video-card';
+    msgCard.innerHTML = '';
+    const video = document.createElement('video');
+    video.src = data.video;
+    video.controls = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    msgCard.appendChild(video);
+    if (data.message) {
+      const msg = document.createElement('p');
+      msg.className = 'msg';
+      msg.textContent = data.message;
+      msgCard.appendChild(msg);
+    }
+    const from = document.createElement('div');
+    from.className = 'from';
+    from.textContent = data.name;
+    msgCard.appendChild(from);
+    msgOverlay.classList.add('show');
+  }
+
+  msgOverlay.addEventListener('click', (e) => {
+    if (e.target === msgOverlay) {
+      const video = msgCard.querySelector('video');
+      if (video) video.pause();
+      msgOverlay.classList.remove('show');
+    }
+  });
 
   // 早押しツールチップ
   const tease = document.getElementById('tease');
