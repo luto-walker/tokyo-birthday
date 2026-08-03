@@ -305,7 +305,7 @@
   /* 動画メッセージ用の再生マーク */
   .lantern .play-badge {
     position: absolute;
-    top: 26px;
+    top: 24px;
     left: 50%;
     transform: translateX(-50%);
     width: 20px;
@@ -322,12 +322,12 @@
     height: 0;
     border-style: solid;
     border-width: 6px 0 6px 10px;
-    border-color: transparent transparent transparent #3a2306;
+    border-color: transparent transparent transparent var(--paper);
     margin-left: 2px;
-    filter: drop-shadow(0 0 2px rgba(255,255,255,0.5));
+    filter: drop-shadow(0 0 3px rgba(0,0,0,0.35));
   }
   .lantern.read .play-badge::before {
-    border-color: transparent transparent transparent rgba(58,35,6,0.6);
+    border-color: transparent transparent transparent rgba(255,248,236,0.6);
   }
 
   @keyframes float {
@@ -400,7 +400,7 @@
 
   /* 動画メッセージ用カード */
   .card.video-card {
-    padding: 16px 16px 16px;
+    padding: 10px 10px 14px;
   }
   .card.video-card video {
     width: 100%;
@@ -408,6 +408,10 @@
     display: block;
     margin-bottom: 12px;
     background: #000;
+  }
+
+  @media (max-width: 480px) {
+    .msg-overlay { padding: 12px; }
   }
 
   /* ============ オーバーレイ（サプライズ） ============ */
@@ -540,6 +544,9 @@
   }
   .msg-overlay .card .msg {
     font-size: 14.5px;
+  }
+  .msg-overlay .card.video-card {
+    max-width: 480px;
   }
 
   /* ============ 「残り1つ」案内 ============ */
@@ -983,7 +990,7 @@
     const video = document.createElement('video');
     video.src = data.video;
     video.controls = true;
-    video.autoplay = true;
+    video.autoplay = false;
     video.playsInline = true;
     msgCard.appendChild(video);
     if (data.message) {
@@ -997,6 +1004,11 @@
     from.textContent = data.name;
     msgCard.appendChild(from);
     msgOverlay.classList.add('show');
+
+    // カードが開くアニメーションが終わってから、少し間を置いて再生開始
+    setTimeout(() => {
+      video.play().catch(() => {}); // 自動再生がブロックされた場合は再生ボタンで再生可能
+    }, 900);
   }
 
   msgOverlay.addEventListener('click', (e) => {
