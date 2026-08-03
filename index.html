@@ -720,6 +720,42 @@
     box-shadow: 0 6px 20px rgba(242,181,68,0.35);
   }
 
+  /* ステップ切り替え用のフェード */
+  .handoff-card.fade-out {
+    animation: handoffFadeOut 0.4s ease forwards;
+  }
+  .handoff-card.fade-in {
+    animation: handoffFadeIn 0.5s ease forwards;
+  }
+  @keyframes handoffFadeOut {
+    to { opacity: 0; transform: translateY(-6px); }
+  }
+  @keyframes handoffFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 待機中のドット */
+  .handoff-wait-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .handoff-wait-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,248,236,0.5);
+    animation: waitBounce 1.2s ease-in-out infinite;
+  }
+  .handoff-wait-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .handoff-wait-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes waitBounce {
+    0%, 100% { opacity: 0.3; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(-4px); }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .lantern, .star, .petal, .hero-avatar { animation: none; }
   }
@@ -757,7 +793,7 @@
 </main>
 
 <div class="handoff-overlay" id="handoffOverlay">
-  <div class="handoff-card">
+  <div class="handoff-card" id="handoffStep1">
     <div class="handoff-eyebrow">ちょっと待って</div>
     <div class="avatar-x">
       <img id="handoffAvatar" src="" alt="" style="display:none;">
@@ -769,7 +805,23 @@
     </div>
     <p class="main-line">実は、もうひとり<br>お祝いしたい人がいます。</p>
     <p class="sub-line">この端末を、そっと渡してください。</p>
-    <button class="handoff-btn" id="handoffContinue">わたす</button>
+    <div class="handoff-wait-dots">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div class="handoff-card" id="handoffStep2" style="display:none;">
+    <div class="handoff-eyebrow">あなたへ</div>
+    <div class="avatar-x">
+      <img id="handoffAvatar2" src="" alt="" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="8" r="4" stroke="#fff8ec" stroke-width="1.5"/>
+        <path d="M4 20c0-4 3.6-6 8-6s8 2 8 6" stroke="#fff8ec" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <p class="main-line">受け取って<br>いただけましたか？</p>
+    <p class="sub-line">準備ができたら、開いてみてください。</p>
+    <button class="handoff-btn" id="handoffContinue">ひらく</button>
   </div>
 </div>
 
@@ -830,6 +882,7 @@
   const heroAvatar = document.getElementById('heroAvatar');
   const overlayAvatar = document.getElementById('overlayAvatar');
   const handoffAvatar = document.getElementById('handoffAvatar');
+  const handoffAvatar2 = document.getElementById('handoffAvatar2');
   const handoffFallback = document.getElementById('handoffFallback');
 
   if (firstPersonAvatarUrl) {
@@ -840,6 +893,8 @@
     handoffAvatar.src = secondPersonAvatarUrl;
     handoffAvatar.style.display = 'block';
     if (handoffFallback) handoffFallback.style.display = 'none';
+    handoffAvatar2.src = secondPersonAvatarUrl;
+    handoffAvatar2.style.display = 'block';
   }
 
   function renderWall(containerId, messages) {
@@ -1028,12 +1083,28 @@
     teaseTimer = setTimeout(() => tease.classList.remove('show'), 2200);
   }
 
-  // 受け渡しクッション画面
+  // 受け渡しクッション画面（2段階：待機 → 受け取った人がタップ）
   const handoffOverlay = document.getElementById('handoffOverlay');
+  const handoffStep1 = document.getElementById('handoffStep1');
+  const handoffStep2 = document.getElementById('handoffStep2');
   const handoffContinue = document.getElementById('handoffContinue');
 
   function openHandoff() {
+    handoffStep1.style.display = '';
+    handoffStep1.classList.remove('fade-out');
+    handoffStep2.style.display = 'none';
+    handoffStep2.classList.remove('fade-in');
     handoffOverlay.classList.add('show');
+
+    // 手渡しの時間を確保してから、自動で「ひらく」ボタンの画面に切り替える
+    setTimeout(() => {
+      handoffStep1.classList.add('fade-out');
+      setTimeout(() => {
+        handoffStep1.style.display = 'none';
+        handoffStep2.style.display = '';
+        handoffStep2.classList.add('fade-in');
+      }, 380);
+    }, 3200);
   }
   handoffContinue.addEventListener('click', () => {
     handoffOverlay.classList.remove('show');
