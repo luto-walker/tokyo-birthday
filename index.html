@@ -218,11 +218,11 @@
   }
 
   .lede {
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.9;
     color: rgba(255,248,236,0.75);
     max-width: 440px;
-    margin: 20px auto 0;
+    margin: 8px auto 0;
   }
 
   .hint {
@@ -349,10 +349,22 @@
   }
 
   .wall {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 18px;
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 2px 4px 10px;
     text-align: left;
+    scrollbar-width: thin;
+  }
+  .wall .card {
+    flex: 0 0 82%;
+    max-width: 300px;
+    scroll-snap-align: start;
+  }
+  @media (min-width: 560px) {
+    .wall .card { flex-basis: 46%; }
   }
 
   .card {
@@ -489,7 +501,15 @@
   }
 
   .overlay .wall-title {
-    margin: 40px 0 20px;
+    margin: 24px 0 14px;
+  }
+
+  .swipe-hint {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: rgba(255,248,236,0.4);
+    text-align: center;
+    margin-bottom: 10px;
   }
 
   .close-btn {
@@ -502,7 +522,7 @@
     letter-spacing: 0.08em;
     cursor: pointer;
     font-family: inherit;
-    margin-top: 36px;
+    margin-top: 20px;
   }
   .close-btn:hover {
     border-color: var(--gold-soft);
@@ -553,19 +573,27 @@
 
   /* ============ 「残り1つ」案内 ============ */
   .progress-hint {
-    margin-top: 20px;
+    position: fixed;
+    left: 50%;
+    bottom: 40px;
+    transform: translateX(-50%) translateY(10px);
     font-family: 'Shippori Mincho', serif;
-    font-size: 14px;
-    letter-spacing: 0.15em;
-    color: var(--gold-soft);
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    color: var(--night-deep);
+    background: linear-gradient(135deg, var(--gold-soft), var(--gold));
+    padding: 10px 22px;
+    border-radius: 999px;
+    box-shadow: 0 6px 20px rgba(242,181,68,0.4);
+    z-index: 15;
     opacity: 0;
-    transform: translateY(8px);
+    pointer-events: none;
     transition: opacity 0.9s ease, transform 0.9s ease;
-    text-shadow: 0 0 16px rgba(242,181,68,0.5);
+    white-space: nowrap;
   }
   .progress-hint.show {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(0);
   }
 
   /* 進捗ドット */
@@ -842,6 +870,7 @@
     <h2>古谷さん<br>就任1周年<br>おめでとうございます</h2>
 
     <div class="wall-title">みんなからのメッセージ</div>
+    <div class="swipe-hint">← スワイプしてね →</div>
     <div class="wall" id="anniversaryWall"></div>
 
     <button class="close-btn" id="closeBtn">とじる</button>
@@ -861,6 +890,7 @@
     { name: "松本CA オニオニ", message: "会長、誕生日おめでとうございます🥳\nこれからもCAの顔として活躍お願いします🙇" },
     { name: "松本CA ると", message: "お誕生日おめでとうございます！会長の行動力にはいつも刺激をいただいています✨また逢いに行きます！" },
     { name: "長野CA らいこう", message: "会長、お誕生日おめでとうございます🎉陰に日向にCAグループを支えていただきありがとうございます！これからもご活躍ください😊" },
+    { name: "長野CA むーさん", message: "会長\nお誕生日おめでとうございます🎂\nこれからも全国CAの先頭に立って突っ走っていってください！\n陰ながらサポートさせていただきます。\nこれからもよろしくお願いします" },
     { name: "辰野CA ユッキー", type: "video", video: "807276036.569417.mp4", message: "" },
   ];
 
@@ -868,6 +898,7 @@
     { name: "松本CA オニオニ", message: "古谷さん\n就任1周年おめでとうございます。GOフェス東京ではお世話になりました。また、ご一緒しましょう。" },
     { name: "松本CA ると", message: "就任1周年おめでとうございます！新たなグループ Pokémon GO Club Uenoの活動応援してます！" },
     { name: "長野CA らいこう", message: "１周年おめでとうございます🎉東京GOフェスではこまやかなお心配りで不慣れな私たちをフォローしていただきありがとうございました😭新しいグループの活動を応援してます😆" },
+    { name: "長野CA むーさん", message: "古谷さん\nお誕生日＆就任１周年おめでとうございます！\n古谷さんにはCAになりたての頃から仲良くしていただきてとても感謝しています。\nイベント等で一緒になる機会があると思いますが、これからもよろしくお願いします。" },
   ];
 
   /* ============================================================
